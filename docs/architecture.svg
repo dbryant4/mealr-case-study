@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 612" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#5b6b7a"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1040" height="612" rx="10" fill="#ffffff"/>
+  <text x="520" y="34" text-anchor="middle" font-size="20" font-weight="700" fill="#15212e">Mealr — system architecture</text>
+
+  <!-- ================= Section 1: Request path ================= -->
+  <rect x="16" y="50" width="1008" height="176" rx="14" fill="#f3f7fb" stroke="#dbe4ee"/>
+  <text x="34" y="76" font-size="13" font-weight="700" fill="#2E5C8A">1 · Request path</text>
+
+  <!-- User -->
+  <rect x="40" y="96" width="120" height="54" rx="8" fill="#fff" stroke="#2E5C8A" stroke-width="1.5"/>
+  <text x="100" y="128" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">User</text>
+
+  <!-- Web app -->
+  <rect x="208" y="96" width="188" height="54" rx="8" fill="#fff" stroke="#2E5C8A" stroke-width="1.5"/>
+  <text x="302" y="119" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">Web app</text>
+  <text x="302" y="136" text-anchor="middle" font-size="11" fill="#5b6b7a">React + Vite · CloudFront</text>
+
+  <!-- API Gateway -->
+  <rect x="452" y="96" width="168" height="54" rx="8" fill="#fff" stroke="#2E5C8A" stroke-width="1.5"/>
+  <text x="536" y="119" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">API Gateway</text>
+  <text x="536" y="136" text-anchor="middle" font-size="11" fill="#5b6b7a">base-path routing</text>
+
+  <!-- HTTP APIs -->
+  <rect x="680" y="90" width="320" height="66" rx="8" fill="#fff" stroke="#2E5C8A" stroke-width="1.5"/>
+  <text x="840" y="116" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">HTTP APIs · per-service JWT auth</text>
+  <text x="840" y="134" text-anchor="middle" font-size="11" fill="#5b6b7a">account · recipes · shopping · ask</text>
+
+  <!-- Cognito -->
+  <rect x="208" y="170" width="188" height="38" rx="8" fill="#eef4fa" stroke="#9bb6d2" stroke-width="1.2"/>
+  <text x="302" y="194" text-anchor="middle" font-size="12" font-weight="600" fill="#2E5C8A">Cognito · OIDC + MFA</text>
+
+  <!-- arrows S1 -->
+  <line x1="160" y1="123" x2="206" y2="123" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <line x1="396" y1="123" x2="450" y2="123" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <line x1="620" y1="123" x2="678" y2="123" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <line x1="302" y1="150" x2="302" y2="168" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- ================= Section 2: Ingestion pipeline ================= -->
+  <rect x="16" y="246" width="1008" height="150" rx="14" fill="#fbf4ec" stroke="#ecdcc7"/>
+  <text x="34" y="272" font-size="13" font-weight="700" fill="#B5651D">2 · Ingestion pipeline — document AI</text>
+
+  <rect x="40" y="312" width="150" height="56" rx="8" fill="#fff" stroke="#B5651D" stroke-width="1.5"/>
+  <text x="115" y="335" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">S3</text>
+  <text x="115" y="352" text-anchor="middle" font-size="11" fill="#5b6b7a">PDF uploads</text>
+
+  <rect x="300" y="312" width="210" height="56" rx="8" fill="#fff" stroke="#B5651D" stroke-width="1.5"/>
+  <text x="405" y="335" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">PDF Ingestor</text>
+  <text x="405" y="352" text-anchor="middle" font-size="11" fill="#5b6b7a">Step Functions · EventBridge</text>
+
+  <rect x="600" y="312" width="160" height="56" rx="8" fill="#fff" stroke="#B5651D" stroke-width="1.5"/>
+  <text x="680" y="335" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">S3</text>
+  <text x="680" y="352" text-anchor="middle" font-size="11" fill="#5b6b7a">structured JSON</text>
+
+  <rect x="830" y="312" width="170" height="56" rx="8" fill="#fff" stroke="#B5651D" stroke-width="1.5"/>
+  <text x="915" y="335" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">Knowledge Base</text>
+  <text x="915" y="352" text-anchor="middle" font-size="11" fill="#5b6b7a">Bedrock + S3 Vectors</text>
+
+  <line x1="190" y1="340" x2="298" y2="340" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="244" y="332" text-anchor="middle" font-size="10" fill="#8a7150">on upload</text>
+  <line x1="510" y1="340" x2="598" y2="340" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="554" y="332" text-anchor="middle" font-size="10" fill="#8a7150">extract</text>
+  <line x1="760" y1="340" x2="828" y2="340" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="794" y="332" text-anchor="middle" font-size="10" fill="#8a7150">sync</text>
+
+  <!-- ================= Section 3: Ask / RAG ================= -->
+  <rect x="16" y="416" width="1008" height="172" rx="14" fill="#eef7f3" stroke="#cae3da"/>
+  <text x="34" y="442" font-size="13" font-weight="700" fill="#1F7A6B">3 · Ask — conversational RAG</text>
+
+  <rect x="40" y="478" width="150" height="56" rx="8" fill="#fff" stroke="#1F7A6B" stroke-width="1.5"/>
+  <text x="115" y="501" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">ask-api</text>
+  <text x="115" y="518" text-anchor="middle" font-size="11" fill="#5b6b7a">/ask</text>
+
+  <rect x="300" y="478" width="220" height="56" rx="8" fill="#fff" stroke="#1F7A6B" stroke-width="1.5"/>
+  <text x="410" y="501" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">Knowledge Base</text>
+  <text x="410" y="518" text-anchor="middle" font-size="11" fill="#5b6b7a">retrieval scoped by userId</text>
+
+  <rect x="620" y="478" width="180" height="56" rx="8" fill="#fff" stroke="#1F7A6B" stroke-width="1.5"/>
+  <text x="710" y="501" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">Bedrock Converse</text>
+  <text x="710" y="518" text-anchor="middle" font-size="11" fill="#5b6b7a">Claude Sonnet 4.6</text>
+
+  <rect x="840" y="478" width="168" height="56" rx="8" fill="#fff" stroke="#1F7A6B" stroke-width="1.5"/>
+  <text x="924" y="501" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">Response</text>
+  <text x="924" y="518" text-anchor="middle" font-size="11" fill="#5b6b7a">answer + citations</text>
+
+  <line x1="190" y1="506" x2="298" y2="506" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="244" y="498" text-anchor="middle" font-size="10" fill="#4f8c7e">query + history</text>
+  <line x1="520" y1="506" x2="618" y2="506" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="569" y="498" text-anchor="middle" font-size="10" fill="#4f8c7e">context</text>
+  <line x1="800" y1="506" x2="838" y2="506" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="819" y="498" text-anchor="middle" font-size="10" fill="#4f8c7e">answer</text>
+
+  <text x="34" y="566" font-size="11" fill="#5b6b7a">Retrieval is filtered to the caller&#8217;s identity — users only ever see their own recipes; citations are validated against retrieval to prevent hallucinated sources.</text>
+</svg>
