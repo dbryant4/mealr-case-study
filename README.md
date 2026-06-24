@@ -13,6 +13,7 @@ Built and architected by **Derrick Bryant** — [LinkedIn](https://www.linkedin.
   - [Conversational RAG over personal data](#conversational-rag-over-personal-data-ask-service)
   - [Vector knowledge base](#vector-knowledge-base-kb-service)
   - [Document-AI ingestion pipeline](#document-ai-ingestion-pipeline-pdf-ingestor-service)
+  - [MCP server for agents](#mcp-server--let-any-agent-use-your-recipes-mcp-service)
 - [System architecture](#system-architecture)
 - [Tech stack](#tech-stack)
 - [Engineering practices on display](#engineering-practices-on-display)
@@ -24,7 +25,7 @@ Built and architected by **Derrick Bryant** — [LinkedIn](https://www.linkedin.
 
 Mealr turns a pile of scanned recipe PDFs into a private, searchable, **conversational** cookbook. Upload a photo or PDF of a recipe and an ingestion pipeline extracts it into structured data; ask questions in plain English ("what can I make with what's in the fridge?", "add the Tuesday pasta to my shopping list") and a retrieval-grounded assistant answers using **only your own recipes**, with citations.
 
-It's a full multi-service platform — auth, APIs, a React web app, an event-driven ingestion pipeline, and a Bedrock-backed knowledge base — deployed entirely as serverless infrastructure-as-code.
+It's a full multi-service platform — auth, APIs, a React web app, an event-driven ingestion pipeline, a Bedrock-backed knowledge base, and an MCP server for external agents — deployed entirely as serverless infrastructure-as-code.
 
 ---
 
@@ -47,6 +48,12 @@ This is the part that matters for an engineering audience. Mealr isn't a chatbot
 ### Document-AI ingestion pipeline (`pdf-ingestor` service)
 - Drop a scanned recipe PDF in S3 → an **EventBridge → Step Functions** pipeline extracts it into structured JSON (ingredients with consistent units, steps, images), scoped by `userId`.
 - Job status tracked in DynamoDB for the UI; SQS buffers overflow; idempotent reprocessing and data migrations are first-class.
+
+### MCP server — let any agent use your recipes (`mcp` service)
+- A remote **Model Context Protocol** server (FastMCP on AWS Lambda) that lets external AI agents — Claude, IDE assistants, anything MCP-aware — work with a user's recipes through standard tools.
+- **Read-only, least-privilege tools (v1):** `list_recipes`, `get_recipe`, `search_recipes`. No mutating or KB tools — deliberate scoping of what an agent is allowed to do.
+- **Agent-grade auth:** OAuth 2.1 with PKCE against the existing Cognito user pool — serves OAuth discovery metadata, returns `401` with `WWW-Authenticate` for unauthenticated calls, and proxies authorize/token to Cognito, with per-platform app clients.
+- **Clean boundary:** runs on its own custom domain (`mcp.mealr.recipes`), separate from the REST gateway, and proxies to `recipes-api` with the caller's own token — so an agent only ever sees what that user can.
 
 ---
 
@@ -83,7 +90,10 @@ flowchart TB
     kb["Knowledge Base<br/>Bedrock + S3 Vectors"]
     bedrock["Bedrock Converse<br/>Claude Sonnet 4.6"]
     ingest["PDF ingestor<br/>EventBridge + Step Functions"]
+    mcp["MCP server<br/>mcp.mealr.recipes"]
   end
+
+  agent(["AI agent / MCP client"])
 
   subgraph data ["Storage"]
     s3in["S3 — PDF uploads"]
@@ -98,6 +108,7 @@ flowchart TB
   s3out -- EventBridge --> kb
   ask --> kb --> bedrock
   ask --> bedrock
+  agent -- OAuth 2.1 --> mcp --> recipes
   recipes --> ddb
   ingest --> ddb
 ```
@@ -110,10 +121,10 @@ flowchart TB
 
 | Area | Choices |
 |---|---|
-| **AI** | Amazon Bedrock (Converse + Knowledge Bases), Amazon S3 Vectors, Claude Sonnet 4.6 |
+| **AI** | Amazon Bedrock (Converse + Knowledge Bases), Amazon S3 Vectors, Claude Sonnet 4.6, Model Context Protocol (FastMCP) |
 | **Compute** | AWS Lambda, Step Functions, EventBridge, SQS (serverless, event-driven) |
 | **Data** | DynamoDB, S3 |
-| **Auth** | Amazon Cognito (OIDC, MFA) |
+| **Auth** | Amazon Cognito (OIDC, MFA); OAuth 2.1 + PKCE for MCP clients |
 | **Web** | React, Vite, TypeScript, Tailwind, TanStack Query, react-oidc-context |
 | **APIs** | HTTP APIs with per-stack JWT authorizers; OpenAPI specs |
 | **Infra** | AWS CDK (Python) — 100% infrastructure-as-code, multi-stack |
@@ -123,7 +134,7 @@ flowchart TB
 
 ## Engineering practices on display
 
-- **Microservices done deliberately** — eight independently deployable services, each with its own stack, authorizer, OpenAPI contract, tests, and SemVer version, wired together through an API gateway and EventBridge.
+- **Microservices done deliberately** — nine independently deployable services, each with its own stack, authorizer, OpenAPI contract, tests, and SemVer version, wired together through an API gateway and EventBridge.
 - **Security & multi-tenancy** — Cognito OIDC + MFA, JWT authorizers per service, and retrieval that is *provably* scoped per user.
 - **Event-driven, idempotent pipelines** — debounced KB sync, overflow buffering, reprocessing, and data migrations treated as first-class concerns.
 - **Everything as code** — all infrastructure in CDK; reproducible deploys; architecture captured in a versioned diagram checked into the repo.
@@ -132,7 +143,7 @@ flowchart TB
 
 ## My role
 
-I designed and built the entire platform end to end — the agentic AI (RAG design, retrieval scoping, grounding and citation validation, the document-extraction pipeline), the serverless architecture, the APIs and auth, and the React front-end. Mealr is where I prove the thing I care about professionally: bringing **agentic AI into production reliably**, not just as a demo.
+I designed and built the entire platform end to end — the agentic AI (RAG design, retrieval scoping, grounding and citation validation, the document-extraction pipeline, and an MCP server that exposes recipes to external agents over OAuth 2.1), the serverless architecture, the APIs and auth, and the React front-end. Mealr is where I prove the thing I care about professionally: bringing **agentic AI into production reliably**, not just as a demo.
 
 ---
 
