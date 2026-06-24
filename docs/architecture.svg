@@ -111,12 +111,12 @@
 
   <rect x="690" y="668" width="170" height="56" rx="8" fill="#fff" stroke="#6b4ea8" stroke-width="1.5"/>
   <text x="775" y="691" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">recipes-api</text>
-  <text x="775" y="708" text-anchor="middle" font-size="11" fill="#5b6b7a">read-only proxy</text>
+  <text x="775" y="708" text-anchor="middle" font-size="11" fill="#5b6b7a">+ kb-api · read-only</text>
 
   <line x1="230" y1="696" x2="338" y2="696" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#ar)"/>
   <text x="284" y="688" text-anchor="middle" font-size="10" fill="#7a6b8a">OAuth 2.1 + Bearer</text>
   <line x1="580" y1="696" x2="688" y2="696" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#ar)"/>
   <text x="634" y="688" text-anchor="middle" font-size="10" fill="#7a6b8a">caller&#8217;s token</text>
 
-  <text x="34" y="752" font-size="11" fill="#5b6b7a">Read-only tools: list_recipes · get_recipe · search_recipes. Cognito OAuth 2.1 (PKCE), per-platform clients; no mutating tools.</text>
+  <text x="34" y="752" font-size="11" fill="#5b6b7a">Nine read-only tools — incl. ask_about_recipes (RAG over MCP), recipe access, shares &amp; import status. Cognito OAuth 2.1 (PKCE), per-platform clients; no mutating tools.</text>
 </svg>

@@ -25,7 +25,7 @@ Built and architected by **Derrick Bryant** — [LinkedIn](https://www.linkedin.
 
 Mealr turns a pile of scanned recipe PDFs into a private, searchable, **conversational** cookbook. Upload a photo or PDF of a recipe and an ingestion pipeline extracts it into structured data; ask questions in plain English ("what can I make with what's in the fridge?", "add the Tuesday pasta to my shopping list") and a retrieval-grounded assistant answers using **only your own recipes**, with citations.
 
-It's a full multi-service platform — auth, APIs, a React web app, an event-driven ingestion pipeline, a Bedrock-backed knowledge base, and an MCP server for external agents — deployed entirely as serverless infrastructure-as-code.
+It's a full multi-service platform — auth, APIs, a React web app, a static marketing site, an event-driven ingestion pipeline, a Bedrock-backed knowledge base, and an MCP server for external agents — deployed entirely as serverless infrastructure-as-code.
 
 ---
 
@@ -51,9 +51,9 @@ This is the part that matters for an engineering audience. Mealr isn't a chatbot
 
 ### MCP server — let any agent use your recipes (`mcp` service)
 - A remote **Model Context Protocol** server (FastMCP on AWS Lambda) that lets external AI agents — Claude, IDE assistants, anything MCP-aware — work with a user's recipes through standard tools.
-- **Read-only, least-privilege tools (v1):** `list_recipes`, `get_recipe`, `search_recipes`. No mutating or KB tools — deliberate scoping of what an agent is allowed to do.
+- **Read-only, least-privilege tools (v1.1):** nine tools — `list_recipes`, `get_recipe`, `get_recipe_json`, `get_recipe_metadata`, `search_recipes`, `list_import_batches`, `list_recipe_shares`, `get_kb_indexing_status`, and **`ask_about_recipes`** — natural-language Q&A over a user's recipes, exposing the Bedrock Knowledge Base *as an MCP tool*. Still no mutating tools — deliberate scoping of what an agent can do.
 - **Agent-grade auth:** OAuth 2.1 with PKCE against the existing Cognito user pool — serves OAuth discovery metadata, returns `401` with `WWW-Authenticate` for unauthenticated calls, and proxies authorize/token to Cognito, with per-platform app clients.
-- **Clean boundary:** runs on its own custom domain (`mcp.mealr.recipes`), separate from the REST gateway, and proxies to `recipes-api` with the caller's own token — so an agent only ever sees what that user can.
+- **Clean boundary:** runs on its own custom domain (`mcp.mealr.recipes`), separate from the REST gateway, and proxies to `recipes-api` (and `kb-api` for Q&A) with the caller's own token — so an agent only ever sees what that user can.
 
 ---
 
@@ -108,7 +108,9 @@ flowchart TB
   s3out -- EventBridge --> kb
   ask --> kb --> bedrock
   ask --> bedrock
-  agent -- OAuth 2.1 --> mcp --> recipes
+  agent -- OAuth 2.1 --> mcp
+  mcp --> recipes
+  mcp -- ask_about_recipes --> ask
   recipes --> ddb
   ingest --> ddb
 ```
