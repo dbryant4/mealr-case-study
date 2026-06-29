@@ -51,9 +51,12 @@ This is the part that matters for an engineering audience. Mealr isn't a chatbot
 
 ### MCP server — let any agent use your recipes (`mcp` service)
 - A remote **Model Context Protocol** server (FastMCP on AWS Lambda) that lets external AI agents — Claude, IDE assistants, anything MCP-aware — work with a user's recipes through standard tools.
-- **Read-only, least-privilege tools (v1.1):** nine tools — `list_recipes`, `get_recipe`, `get_recipe_json`, `get_recipe_metadata`, `search_recipes`, `list_import_batches`, `list_recipe_shares`, `get_kb_indexing_status`, and **`ask_about_recipes`** — natural-language Q&A over a user's recipes, exposing the Bedrock Knowledge Base *as an MCP tool*. Still no mutating tools — deliberate scoping of what an agent can do.
+- **Fourteen tools across two groups (v1.2):**
+  - *Recipes (9, read-only)* — `list_recipes`, `get_recipe`, `get_recipe_json`, `get_recipe_metadata`, `search_recipes`, `list_import_batches`, `list_recipe_shares`, `get_kb_indexing_status`, and **`ask_about_recipes`**: natural-language Q&A over a user's recipes, exposing the Bedrock Knowledge Base *as an MCP tool*.
+  - *Shopping lists (5, incl. write actions)* — `list_shopping_lists`, `get_shopping_list`, and the action tools `create_shopping_list`, `add_recipes_to_shopping_list`, `update_shopping_list`: an agent can **plan meals and build or modify a shopping list**, with ingredients auto-aggregated and grouped by category.
+- **Deliberate permission boundary:** recipes stay read-only; write access is scoped to shopping lists — an agent can *act*, but only where it's safe to.
 - **Agent-grade auth:** OAuth 2.1 with PKCE against the existing Cognito user pool — serves OAuth discovery metadata, returns `401` with `WWW-Authenticate` for unauthenticated calls, and proxies authorize/token to Cognito, with per-platform app clients.
-- **Clean boundary:** runs on its own custom domain (`mcp.mealr.recipes`), separate from the REST gateway, and proxies to `recipes-api` (and `kb-api` for Q&A) with the caller's own token — so an agent only ever sees what that user can.
+- **Clean boundary:** runs on its own custom domain (`mcp.mealr.recipes`), separate from the REST gateway; each tool forwards the caller's own Bearer token to the underlying service (`recipes-api`, `kb-api`, `shopping-list-api`) — so an agent only ever sees and changes what that user can.
 
 ---
 
@@ -111,6 +114,7 @@ flowchart TB
   agent -- OAuth 2.1 --> mcp
   mcp --> recipes
   mcp -- ask_about_recipes --> ask
+  mcp -- create/update --> shopping
   recipes --> ddb
   ingest --> ddb
 ```
