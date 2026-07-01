@@ -118,5 +118,6 @@
   <line x1="580" y1="696" x2="688" y2="696" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#ar)"/>
   <text x="634" y="688" text-anchor="middle" font-size="10" fill="#7a6b8a">caller&#8217;s token</text>
 
-  <text x="34" y="752" font-size="11" fill="#5b6b7a">14 tools (v2.0): 9 recipe tools incl. semantic_search_recipes (vector search), + 5 shopping-list tools incl. create/update actions. Per-user OAuth 2.1 token forwarding; writes scoped to shopping lists.</text>
+  <text x="34" y="746" font-size="11" fill="#5b6b7a">14 tools (v2.0): 9 recipe tools incl. semantic_search_recipes (vector search) + 5 shopping-list tools incl. create/update actions.</text>
+  <text x="34" y="761" font-size="11" fill="#5b6b7a">Per-user OAuth 2.1 token forwarding; writes scoped to shopping lists.</text>
 </svg>
