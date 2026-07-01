@@ -34,7 +34,7 @@ It's a full multi-service platform — auth, APIs, a React web app, a static mar
 This is the part that matters for an engineering audience. Mealr isn't a chatbot bolted onto a CRUD app — retrieval, grounding, and per-user isolation are designed in.
 
 ### Conversational RAG over personal data (`ask` service)
-- **Amazon Bedrock Converse** with a **Knowledge Base**, model **Claude Sonnet 4.6**.
+- **An agentic, streaming assistant** built on the **Strands Agents** framework over **Amazon Bedrock** (Claude Sonnet 4.6) with a **Knowledge Base** — a tool-using agent that streams its answer token-by-token over **SSE**, rather than one blocking call.
 - **Multi-turn chat** — the client sends conversation history each turn; threads persist client-side.
 - **Per-user retrieval scoping** — retrieval is filtered to the caller's identity (`userId` metadata), so one user can never retrieve another's recipes. Shared-library access is an explicit, granted exception (`ownerSub`).
 - **Grounded citations** — when the answer references specific recipes, the response includes structured citations (`slug`, `title`, `snippet`, `url`), validated against what retrieval actually returned. Chit-chat and irrelevant retrieval hits are deliberately *not* cited.
@@ -51,8 +51,9 @@ This is the part that matters for an engineering audience. Mealr isn't a chatbot
 
 ### MCP server — let any agent use your recipes (`mcp` service)
 - A remote **Model Context Protocol** server (FastMCP on AWS Lambda) that lets external AI agents — Claude, IDE assistants, anything MCP-aware — work with a user's recipes through standard tools.
-- **Fourteen tools across two groups (v1.2):**
-  - *Recipes (9, read-only)* — `list_recipes`, `get_recipe`, `get_recipe_json`, `get_recipe_metadata`, `search_recipes`, `list_import_batches`, `list_recipe_shares`, `get_kb_indexing_status`, and **`ask_about_recipes`**: natural-language Q&A over a user's recipes, exposing the Bedrock Knowledge Base *as an MCP tool*.
+- **Fourteen tools across two groups (v2.0):**
+  - *Recipes (9, read-only)* — `list_recipes`, `get_recipe`, `get_recipe_json`, `get_recipe_metadata`, `search_recipes`, **`semantic_search_recipes`** (vector search over a user's indexed recipes, ranked by relevance), `list_import_batches`, `list_recipe_shares`, `get_kb_indexing_status`.
+  - **Retrieval as a composable tool (v2.0 change):** the server now exposes *semantic search* rather than a canned Q&A answer — the *calling* agent reasons over the ranked results. Cleaner boundary: the MCP provides capabilities; the client's agent orchestrates. (Replaced the earlier `ask_about_recipes` tool.)
   - *Shopping lists (5, incl. write actions)* — `list_shopping_lists`, `get_shopping_list`, and the action tools `create_shopping_list`, `add_recipes_to_shopping_list`, `update_shopping_list`: an agent can **plan meals and build or modify a shopping list**, with ingredients auto-aggregated and grouped by category.
 - **Deliberate permission boundary:** recipes stay read-only; write access is scoped to shopping lists — an agent can *act*, but only where it's safe to.
 - **Agent-grade auth:** OAuth 2.1 with PKCE against the existing Cognito user pool — serves OAuth discovery metadata, returns `401` with `WWW-Authenticate` for unauthenticated calls, and proxies authorize/token to Cognito, with per-platform app clients.
@@ -113,7 +114,7 @@ flowchart TB
   ask --> bedrock
   agent -- OAuth 2.1 --> mcp
   mcp --> recipes
-  mcp -- ask_about_recipes --> ask
+  mcp -- semantic_search --> kb
   mcp -- create/update --> shopping
   recipes --> ddb
   ingest --> ddb
@@ -127,7 +128,7 @@ flowchart TB
 
 | Area | Choices |
 |---|---|
-| **AI** | Amazon Bedrock (Converse + Knowledge Bases), Amazon S3 Vectors, Claude Sonnet 4.6, Model Context Protocol (FastMCP) |
+| **AI** | Amazon Bedrock (Converse + Knowledge Bases), Amazon S3 Vectors, Claude Sonnet 4.6, Strands Agents (streaming Ask), Model Context Protocol (FastMCP) |
 | **Compute** | AWS Lambda, Step Functions, EventBridge, SQS (serverless, event-driven) |
 | **Data** | DynamoDB, S3 |
 | **Auth** | Amazon Cognito (OIDC, MFA); OAuth 2.1 + PKCE for MCP clients |

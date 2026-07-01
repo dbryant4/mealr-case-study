@@ -70,7 +70,7 @@
 
   <!-- ================= Section 3: Ask / RAG ================= -->
   <rect x="16" y="416" width="1008" height="172" rx="14" fill="#eef7f3" stroke="#cae3da"/>
-  <text x="34" y="442" font-size="13" font-weight="700" fill="#1F7A6B">3 · Ask — conversational RAG</text>
+  <text x="34" y="442" font-size="13" font-weight="700" fill="#1F7A6B">3 · Ask — agentic, streaming RAG</text>
 
   <rect x="40" y="478" width="150" height="56" rx="8" fill="#fff" stroke="#1F7A6B" stroke-width="1.5"/>
   <text x="115" y="501" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">ask-api</text>
@@ -81,12 +81,12 @@
   <text x="410" y="518" text-anchor="middle" font-size="11" fill="#5b6b7a">retrieval scoped by userId</text>
 
   <rect x="620" y="478" width="180" height="56" rx="8" fill="#fff" stroke="#1F7A6B" stroke-width="1.5"/>
-  <text x="710" y="501" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">Bedrock Converse</text>
-  <text x="710" y="518" text-anchor="middle" font-size="11" fill="#5b6b7a">Claude Sonnet 4.6</text>
+  <text x="710" y="501" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">Ask agent (Strands)</text>
+  <text x="710" y="518" text-anchor="middle" font-size="11" fill="#5b6b7a">Bedrock · Claude Sonnet 4.6</text>
 
   <rect x="840" y="478" width="168" height="56" rx="8" fill="#fff" stroke="#1F7A6B" stroke-width="1.5"/>
   <text x="924" y="501" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">Response</text>
-  <text x="924" y="518" text-anchor="middle" font-size="11" fill="#5b6b7a">answer + citations</text>
+  <text x="924" y="518" text-anchor="middle" font-size="11" fill="#5b6b7a">streamed (SSE) + citations</text>
 
   <line x1="190" y1="506" x2="298" y2="506" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
   <text x="244" y="498" text-anchor="middle" font-size="10" fill="#4f8c7e">query + history</text>
@@ -118,5 +118,5 @@
   <line x1="580" y1="696" x2="688" y2="696" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#ar)"/>
   <text x="634" y="688" text-anchor="middle" font-size="10" fill="#7a6b8a">caller&#8217;s token</text>
 
-  <text x="34" y="752" font-size="11" fill="#5b6b7a">14 tools (v1.2): 9 read-only recipe tools incl. ask_about_recipes (RAG), + 5 shopping-list tools incl. create/update actions. Per-user OAuth 2.1 token forwarding; writes scoped to shopping lists.</text>
+  <text x="34" y="752" font-size="11" fill="#5b6b7a">14 tools (v2.0): 9 recipe tools incl. semantic_search_recipes (vector search), + 5 shopping-list tools incl. create/update actions. Per-user OAuth 2.1 token forwarding; writes scoped to shopping lists.</text>
 </svg>
