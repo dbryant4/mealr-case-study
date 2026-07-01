@@ -8,7 +8,7 @@ A **public, code-free case study** documenting the architecture of Mealr. The ap
 
 ## Versioning
 
-The single source of truth for the version is the **`VERSION`** file (currently `1.4.0`), using **semantic versioning** `MAJOR.MINOR.PATCH`.
+The single source of truth for the version is the **`VERSION`** file (currently `1.4.1`), using **semantic versioning** `MAJOR.MINOR.PATCH`.
 
 Because this repo is documentation (not shipping code), interpret SemVer by *content impact*:
 
@@ -52,6 +52,7 @@ When you make a change worth releasing:
 
 ## Version history
 
+- **1.4.1** — Diagram polish: fixed the MCP tool note overflowing the canvas; added a "Uploaded via web app" origin to the ingestion pipeline.
 - **1.4.0** — Ask rebuilt as an agentic, streaming (SSE) assistant on the Strands Agents framework; MCP 2.0 replaced `ask_about_recipes` with `semantic_search_recipes` (retrieval-as-a-tool).
 - **1.3.0** — MCP now exposes shopping-list tools (incl. write actions: create/add/update); documented the recipes-read / shopping-write permission boundary.
 - **1.2.0** — Expanded MCP toolset (9 tools incl. `ask_about_recipes` / RAG over MCP); added the static marketing site to the platform overview.

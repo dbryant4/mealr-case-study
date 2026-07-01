@@ -44,6 +44,9 @@
   <!-- ================= Section 2: Ingestion pipeline ================= -->
   <rect x="16" y="246" width="1008" height="150" rx="14" fill="#fbf4ec" stroke="#ecdcc7"/>
   <text x="34" y="272" font-size="13" font-weight="700" fill="#B5651D">2 · Ingestion pipeline — document AI</text>
+  <rect x="40" y="280" width="150" height="24" rx="6" fill="#fff" stroke="#B5651D"/>
+  <text x="115" y="296" text-anchor="middle" font-size="10" fill="#5b6b7a">Uploaded via web app</text>
+  <line x1="115" y1="304" x2="115" y2="310" stroke="#5b6b7a" stroke-width="1.4" marker-end="url(#ar)"/>
 
   <rect x="40" y="312" width="150" height="56" rx="8" fill="#fff" stroke="#B5651D" stroke-width="1.5"/>
   <text x="115" y="335" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">S3</text>
