@@ -47,7 +47,7 @@ This is the part that matters for an engineering audience. Mealr isn't a chatbot
 
 ### Document-AI ingestion pipeline (`pdf-ingestor` service)
 - Drop a scanned recipe PDF in S3 → an event-driven pipeline extracts it into structured JSON (ingredients with consistent units, steps, images), scoped by `userId`.
-- **Agentic extraction:** a **Coordinator** fans out concurrent **agentic recipe workers** — each running Bedrock Converse with the source PDF inlined as a document block — over a **FIFO queue**, preserving per-user ordering and backing off adaptively when Bedrock throttles, while page and banner images render in parallel.
+- **Agentic extraction, deterministic writes:** a **Coordinator** fans out concurrent **agentic recipe workers** — each running Bedrock Converse with the source PDF inlined as a document block — over a **FIFO queue**, preserving per-user ordering and backing off adaptively when Bedrock throttles. The workers only *extract*; the Coordinator then runs a **deterministic persist chain** (validate → write the tagged `recipe.json` → archive the source → merge the per-user index) that does all the S3 writes, keeping the fuzzy AI step cleanly separated from durable persistence. Page and banner images render in parallel.
 - Job status tracked in DynamoDB for the UI; idempotent reprocessing and data migrations are first-class.
 
 ### MCP server — let any agent use your recipes (`mcp` service)

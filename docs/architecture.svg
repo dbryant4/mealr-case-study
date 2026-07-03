@@ -77,8 +77,8 @@
 
   <line x1="190" y1="322" x2="320" y2="322" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
   <text x="250" y="315" text-anchor="middle" font-size="10" fill="#8a7150">on upload</text>
-  <line x1="514" y1="356" x2="598" y2="342" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
-  <text x="554" y="332" text-anchor="middle" font-size="10" fill="#8a7150">extract</text>
+  <line x1="514" y1="322" x2="598" y2="338" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="556" y="316" text-anchor="middle" font-size="10" fill="#8a7150">persist</text>
   <line x1="760" y1="340" x2="828" y2="340" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
   <text x="794" y="332" text-anchor="middle" font-size="10" fill="#8a7150">sync</text>
 
