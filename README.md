@@ -46,8 +46,9 @@ This is the part that matters for an engineering audience. Mealr isn't a chatbot
 - **Event-driven sync** via EventBridge, with debouncing when many recipes change at once.
 
 ### Document-AI ingestion pipeline (`pdf-ingestor` service)
-- Drop a scanned recipe PDF in S3 → an **EventBridge → Step Functions** pipeline extracts it into structured JSON (ingredients with consistent units, steps, images), scoped by `userId`.
-- Job status tracked in DynamoDB for the UI; SQS buffers overflow; idempotent reprocessing and data migrations are first-class.
+- Drop a scanned recipe PDF in S3 → an event-driven pipeline extracts it into structured JSON (ingredients with consistent units, steps, images), scoped by `userId`.
+- **Agentic extraction:** a **Coordinator** fans out concurrent **agentic recipe workers** — each running Bedrock Converse with the source PDF inlined as a document block — over a **FIFO queue**, preserving per-user ordering and backing off adaptively when Bedrock throttles, while page and banner images render in parallel.
+- Job status tracked in DynamoDB for the UI; idempotent reprocessing and data migrations are first-class.
 
 ### MCP server — let any agent use your recipes (`mcp` service)
 - A remote **Model Context Protocol** server (FastMCP on AWS Lambda) that lets external AI agents — Claude, IDE assistants, anything MCP-aware — work with a user's recipes through standard tools.

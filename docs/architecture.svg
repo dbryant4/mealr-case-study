@@ -54,7 +54,7 @@
 
   <rect x="300" y="312" width="210" height="56" rx="8" fill="#fff" stroke="#B5651D" stroke-width="1.5"/>
   <text x="405" y="335" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">PDF Ingestor</text>
-  <text x="405" y="352" text-anchor="middle" font-size="11" fill="#5b6b7a">Step Functions · EventBridge</text>
+  <text x="405" y="352" text-anchor="middle" font-size="11" fill="#5b6b7a">Coordinator + agentic workers</text>
 
   <rect x="600" y="312" width="160" height="56" rx="8" fill="#fff" stroke="#B5651D" stroke-width="1.5"/>
   <text x="680" y="335" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">S3</text>
