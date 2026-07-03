@@ -94,7 +94,7 @@ flowchart TB
   subgraph ai ["Agentic AI"]
     kb["Knowledge Base<br/>Bedrock + S3 Vectors"]
     bedrock["Bedrock Converse<br/>Claude Sonnet 4.6"]
-    ingest["PDF ingestor<br/>EventBridge + Step Functions"]
+    ingest["PDF ingestor · Coordinator<br/>concurrent fan-out to agentic workers"]
     mcp["MCP server<br/>mcp.mealr.recipes"]
   end
 
