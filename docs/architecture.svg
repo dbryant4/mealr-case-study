@@ -33,7 +33,7 @@
 
   <!-- Cognito -->
   <rect x="208" y="170" width="188" height="38" rx="8" fill="#eef4fa" stroke="#9bb6d2" stroke-width="1.2"/>
-  <text x="302" y="194" text-anchor="middle" font-size="12" font-weight="600" fill="#2E5C8A">Cognito · OIDC + MFA</text>
+  <text x="302" y="194" text-anchor="middle" font-size="12" font-weight="600" fill="#2E5C8A">Cognito · OIDC · MFA · passkeys</text>
 
   <!-- arrows S1 -->
   <line x1="160" y1="123" x2="206" y2="123" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
@@ -115,9 +115,10 @@
   <rect x="16" y="608" width="1008" height="160" rx="14" fill="#f4eefb" stroke="#e0d3f0"/>
   <text x="34" y="634" font-size="13" font-weight="700" fill="#6b4ea8">4 · MCP access — let any agent use your recipes</text>
 
-  <rect x="40" y="668" width="190" height="56" rx="8" fill="#fff" stroke="#6b4ea8" stroke-width="1.5"/>
-  <text x="135" y="691" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">AI agent / MCP client</text>
-  <text x="135" y="708" text-anchor="middle" font-size="11" fill="#5b6b7a">Claude, IDEs, etc.</text>
+  <rect x="40" y="666" width="190" height="26" rx="6" fill="#fff" stroke="#6b4ea8" stroke-width="1.4"/>
+  <text x="135" y="683" text-anchor="middle" font-size="11" font-weight="600" fill="#1a2a38">AI agents (Claude, IDEs)</text>
+  <rect x="40" y="698" width="190" height="26" rx="6" fill="#f4eefb" stroke="#6b4ea8" stroke-width="1.4"/>
+  <text x="135" y="715" text-anchor="middle" font-size="11" font-weight="600" fill="#1a2a38">insights-api (AgentCore)</text>
 
   <rect x="340" y="668" width="240" height="56" rx="8" fill="#fff" stroke="#6b4ea8" stroke-width="1.7"/>
   <text x="460" y="691" text-anchor="middle" font-size="14" font-weight="600" fill="#6b4ea8">MCP server</text>
@@ -127,8 +128,9 @@
   <text x="775" y="691" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">Mealr APIs</text>
   <text x="775" y="708" text-anchor="middle" font-size="11" fill="#5b6b7a">recipes · kb · shopping</text>
 
-  <line x1="230" y1="696" x2="338" y2="696" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#ar)"/>
-  <text x="284" y="688" text-anchor="middle" font-size="10" fill="#7a6b8a">OAuth 2.1 + Bearer</text>
+  <line x1="230" y1="679" x2="336" y2="690" stroke="#5b6b7a" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="230" y1="711" x2="336" y2="702" stroke="#5b6b7a" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="283" y="672" text-anchor="middle" font-size="10" fill="#7a6b8a">OAuth 2.1 + Bearer</text>
   <line x1="580" y1="696" x2="688" y2="696" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#ar)"/>
   <text x="634" y="688" text-anchor="middle" font-size="10" fill="#7a6b8a">caller&#8217;s token</text>
 

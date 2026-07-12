@@ -8,7 +8,7 @@ A **public, code-free case study** documenting the architecture of Mealr. The ap
 
 ## Versioning
 
-The single source of truth for the version is the **`VERSION`** file (currently `1.5.0`), using **semantic versioning** `MAJOR.MINOR.PATCH`.
+The single source of truth for the version is the **`VERSION`** file (currently `1.6.0`), using **semantic versioning** `MAJOR.MINOR.PATCH`.
 
 Because this repo is documentation (not shipping code), interpret SemVer by *content impact*:
 
@@ -52,6 +52,7 @@ When you make a change worth releasing:
 
 ## Version history
 
+- **1.6.0** — Added the `insights` service: a Bedrock AgentCore + Strands agent that generates recipe-library insights by consuming the platform's own MCP tools (async, S3-backed). Passkey/WebAuthn MFA; service count 9 → 10.
 - **1.5.0** — Ingestion pipeline is now agentic: a Coordinator fans out concurrent agentic recipe workers (Bedrock Converse, PDF inlined as a document block) over a FIFO queue, with per-user ordering and adaptive backoff.
 - **1.4.1** — Diagram polish: fixed the MCP tool note overflowing the canvas; added a "Uploaded via web app" origin to the ingestion pipeline.
 - **1.4.0** — Ask rebuilt as an agentic, streaming (SSE) assistant on the Strands Agents framework; MCP 2.0 replaced `ask_about_recipes` with `semantic_search_recipes` (retrieval-as-a-tool).

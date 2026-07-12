@@ -14,6 +14,7 @@ Built and architected by **Derrick Bryant** — [LinkedIn](https://www.linkedin.
   - [Vector knowledge base](#vector-knowledge-base-kb-service)
   - [Document-AI ingestion pipeline](#document-ai-ingestion-pipeline-pdf-ingestor-service)
   - [MCP server for agents](#mcp-server--let-any-agent-use-your-recipes-mcp-service)
+  - [AI insights (AgentCore agent)](#ai-insights--an-agentcore-agent-over-your-own-mcp-tools-insights-service)
 - [System architecture](#system-architecture)
 - [Tech stack](#tech-stack)
 - [Engineering practices on display](#engineering-practices-on-display)
@@ -25,7 +26,7 @@ Built and architected by **Derrick Bryant** — [LinkedIn](https://www.linkedin.
 
 Mealr turns a pile of scanned recipe PDFs into a private, searchable, **conversational** cookbook. Upload a photo or PDF of a recipe and an ingestion pipeline extracts it into structured data; ask questions in plain English ("what can I make with what's in the fridge?", "add the Tuesday pasta to my shopping list") and a retrieval-grounded assistant answers using **only your own recipes**, with citations.
 
-It's a full multi-service platform — auth, APIs, a React web app, a static marketing site, an event-driven ingestion pipeline, a Bedrock-backed knowledge base, and an MCP server for external agents — deployed entirely as serverless infrastructure-as-code.
+It's a full multi-service platform — auth, APIs, a React web app, a static marketing site, an event-driven ingestion pipeline, a Bedrock-backed knowledge base, an MCP server for external agents, and an AI-insights agent on Bedrock AgentCore — deployed entirely as serverless infrastructure-as-code.
 
 ---
 
@@ -60,6 +61,12 @@ This is the part that matters for an engineering audience. Mealr isn't a chatbot
 - **Agent-grade auth:** OAuth 2.1 with PKCE against the existing Cognito user pool — serves OAuth discovery metadata, returns `401` with `WWW-Authenticate` for unauthenticated calls, and proxies authorize/token to Cognito, with per-platform app clients.
 - **Clean boundary:** runs on its own custom domain (`mcp.mealr.recipes`), separate from the REST gateway; each tool forwards the caller's own Bearer token to the underlying service (`recipes-api`, `kb-api`, `shopping-list-api`) — so an agent only ever sees and changes what that user can.
 
+### AI insights — an AgentCore agent over your own MCP tools (`insights` service)
+- A **Bedrock AgentCore**-hosted agent (AgentCore **Runtime** container + the **Strands Agents** SDK) that generates insights about a user's recipe library — cuisine and category composition, cost tiers, and open-ended observations.
+- **Composes on the platform's own MCP tools:** the agent reaches recipes through the same **MCP server** above (via AgentCore **Gateway**) rather than a bespoke data path — so the MCP layer is a product surface *and* internal plumbing. Eating the dog food.
+- **Async by design:** an SQS/EventBridge-triggered Lambda job runs the agent, writes results to S3, and surfaces them on a dashboard — a slow, multi-step LLM job never blocks a request.
+- A concrete **build-vs-buy** call: a *managed* agent runtime (AgentCore) where it earns its keep, and *hand-built* control (the ingestion Coordinator) where determinism matters.
+
 ---
 
 ## System architecture
@@ -81,7 +88,7 @@ flowchart TB
   end
 
   subgraph identity ["Identity"]
-    cognito["Cognito User Pool<br/>OIDC + MFA"]
+    cognito["Cognito User Pool<br/>OIDC + MFA + passkeys"]
   end
 
   subgraph apis ["HTTP APIs — each with its own JWT authorizer"]
@@ -96,6 +103,7 @@ flowchart TB
     bedrock["Bedrock Converse<br/>Claude Sonnet 4.6"]
     ingest["PDF ingestor · Coordinator<br/>concurrent fan-out to agentic workers"]
     mcp["MCP server<br/>mcp.mealr.recipes"]
+    insights["insights-api<br/>AgentCore + Strands agent"]
   end
 
   agent(["AI agent / MCP client"])
@@ -117,6 +125,7 @@ flowchart TB
   mcp --> recipes
   mcp -- semantic_search --> kb
   mcp -- create/update --> shopping
+  insights -- MCP tools (AgentCore Gateway) --> mcp
   recipes --> ddb
   ingest --> ddb
 ```
@@ -129,10 +138,10 @@ flowchart TB
 
 | Area | Choices |
 |---|---|
-| **AI** | Amazon Bedrock (Converse + Knowledge Bases), Amazon S3 Vectors, Claude Sonnet 4.6, Strands Agents (streaming Ask), Model Context Protocol (FastMCP) |
+| **AI** | Amazon Bedrock (Converse + Knowledge Bases), Amazon S3 Vectors, Claude Sonnet 4.6, Strands Agents, Bedrock AgentCore (Runtime + Gateway), Model Context Protocol (FastMCP) |
 | **Compute** | AWS Lambda, Step Functions, EventBridge, SQS (serverless, event-driven) |
 | **Data** | DynamoDB, S3 |
-| **Auth** | Amazon Cognito (OIDC, MFA); OAuth 2.1 + PKCE for MCP clients |
+| **Auth** | Amazon Cognito (OIDC, MFA, passkeys/WebAuthn); OAuth 2.1 + PKCE for MCP clients |
 | **Web** | React, Vite, TypeScript, Tailwind, TanStack Query, react-oidc-context |
 | **APIs** | HTTP APIs with per-stack JWT authorizers; OpenAPI specs |
 | **Infra** | AWS CDK (Python) — 100% infrastructure-as-code, multi-stack |
@@ -142,7 +151,7 @@ flowchart TB
 
 ## Engineering practices on display
 
-- **Microservices done deliberately** — nine independently deployable services, each with its own stack, authorizer, OpenAPI contract, tests, and SemVer version, wired together through an API gateway and EventBridge.
+- **Microservices done deliberately** — ten independently deployable services, each with its own stack, authorizer, OpenAPI contract, tests, and SemVer version, wired together through an API gateway and EventBridge.
 - **Security & multi-tenancy** — Cognito OIDC + MFA, JWT authorizers per service, and retrieval that is *provably* scoped per user.
 - **Event-driven, idempotent pipelines** — debounced KB sync, overflow buffering, reprocessing, and data migrations treated as first-class concerns.
 - **Everything as code** — all infrastructure in CDK; reproducible deploys; architecture captured in a versioned diagram checked into the repo.
