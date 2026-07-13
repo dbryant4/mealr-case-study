@@ -104,10 +104,17 @@ flowchart TB
     bedrock["Bedrock Converse<br/>Claude Sonnet 4.6"]
     ingest["PDF ingestor · Coordinator<br/>concurrent fan-out to agentic workers"]
     mcp["MCP server<br/>mcp.mealr.recipes"]
-    insights["insights-api<br/>AgentCore Harness · tool-use loop"]
   end
 
   agent(["AI agent / MCP client"])
+
+  subgraph insvc ["Insights — async agentic job (AgentCore Harness)"]
+    itrig["EventBridge · SQS FIFO<br/>debounced"]
+    iagent["Harness agent<br/>AgentCore · Claude"]
+    itools["inline tools<br/>list_recipes · get_recipe"]
+    iout["S3 — insights/{userId}.json"]
+    dash["Dashboard<br/>owner-only refresh"]
+  end
 
   subgraph data ["Storage"]
     s3in["S3 — PDF uploads"]
@@ -126,7 +133,11 @@ flowchart TB
   mcp --> recipes
   mcp -- semantic_search --> kb
   mcp -- create/update --> shopping
-  insights -- reads (IAM-scoped) --> s3out
+  itrig -- invoke --> iagent
+  iagent -- tool_use --> itools
+  itools -- result --> iagent
+  itools -- read · IAM-scoped --> s3out
+  iagent -- writes report --> iout --> dash
   recipes --> ddb
   ingest --> ddb
 ```
