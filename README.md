@@ -14,7 +14,7 @@ Built and architected by **Derrick Bryant** — [LinkedIn](https://www.linkedin.
   - [Vector knowledge base](#vector-knowledge-base-kb-service)
   - [Document-AI ingestion pipeline](#document-ai-ingestion-pipeline-pdf-ingestor-service)
   - [MCP server for agents](#mcp-server--let-any-agent-use-your-recipes-mcp-service)
-  - [AI insights (AgentCore agent)](#ai-insights--an-agentcore-agent-over-your-own-mcp-tools-insights-service)
+  - [AI insights (AgentCore Harness agent)](#ai-insights--a-managed-agentcore-harness-agent-iam-scoped-insights-service)
 - [System architecture](#system-architecture)
 - [Tech stack](#tech-stack)
 - [Engineering practices on display](#engineering-practices-on-display)
@@ -61,11 +61,11 @@ This is the part that matters for an engineering audience. Mealr isn't a chatbot
 - **Agent-grade auth:** OAuth 2.1 with PKCE against the existing Cognito user pool — serves OAuth discovery metadata, returns `401` with `WWW-Authenticate` for unauthenticated calls, and proxies authorize/token to Cognito, with per-platform app clients.
 - **Clean boundary:** runs on its own custom domain (`mcp.mealr.recipes`), separate from the REST gateway; each tool forwards the caller's own Bearer token to the underlying service (`recipes-api`, `kb-api`, `shopping-list-api`) — so an agent only ever sees and changes what that user can.
 
-### AI insights — an AgentCore agent over your own MCP tools (`insights` service)
-- A **Bedrock AgentCore**-hosted agent (AgentCore **Runtime** container + the **Strands Agents** SDK) that generates insights about a user's recipe library — cuisine and category composition, cost tiers, and open-ended observations.
-- **Composes on the platform's own MCP tools:** the agent reaches recipes through the same **MCP server** above (via AgentCore **Gateway**) rather than a bespoke data path — so the MCP layer is a product surface *and* internal plumbing. Eating the dog food.
-- **Async by design:** an SQS/EventBridge-triggered Lambda job runs the agent, writes results to S3, and surfaces them on a dashboard — a slow, multi-step LLM job never blocks a request.
-- A concrete **build-vs-buy** call: a *managed* agent runtime (AgentCore) where it earns its keep, and *hand-built* control (the ingestion Coordinator) where determinism matters.
+### AI insights — a managed AgentCore Harness agent, IAM-scoped (`insights` service)
+- A **Bedrock AgentCore Harness** agent — managed model + system prompt + inline tool schemas as *configuration*, with no custom container to run — that generates insights about a user's recipe library: cuisine and category composition, cost tiers, and open-ended observations.
+- **Security is a hard IAM boundary, not a prompt convention:** the Harness itself has **zero data access**. Its inline tools (`list_recipes`, `get_recipe`) execute in the *caller* — a Job Lambda whose IAM role is scoped to that user's `recipes/<userId>/…` objects in S3. The model can only ever reach the recipes of the user the job is running for; `userId` comes from the verified identity, never a model argument. (This is deliberately a *different* access path from the MCP server, which forwards a live per-user OAuth token — an async, unattended job has no user token to forward, so it reads from S3 under its own scoped role instead.)
+- **Async by design:** an SQS FIFO job (content-based dedup for debounce) drives the agent's tool-use loop and writes the report to S3 (`insights/{userId}.json`); a small front-door API serves it (`GET /insights`, plus an **owner-only** `POST /insights/refresh` so a viewer can't spend another owner's Bedrock budget). A slow, multi-step LLM job never blocks a request.
+- A concrete **build-vs-buy** call: the *managed* AgentCore Harness for the agent loop where it earns its keep, while the *hard security boundary* stays in your own IAM-scoped Lambda — and *hand-built* determinism (the ingestion Coordinator) is used where it matters.
 
 ---
 
@@ -103,7 +103,7 @@ flowchart TB
     bedrock["Bedrock Converse<br/>Claude Sonnet 4.6"]
     ingest["PDF ingestor · Coordinator<br/>concurrent fan-out to agentic workers"]
     mcp["MCP server<br/>mcp.mealr.recipes"]
-    insights["insights-api<br/>AgentCore + Strands agent"]
+    insights["insights-api<br/>AgentCore Harness agent"]
   end
 
   agent(["AI agent / MCP client"])
@@ -125,7 +125,7 @@ flowchart TB
   mcp --> recipes
   mcp -- semantic_search --> kb
   mcp -- create/update --> shopping
-  insights -- MCP tools (AgentCore Gateway) --> mcp
+  insights -- reads (IAM-scoped) --> s3out
   recipes --> ddb
   ingest --> ddb
 ```
@@ -138,7 +138,7 @@ flowchart TB
 
 | Area | Choices |
 |---|---|
-| **AI** | Amazon Bedrock (Converse + Knowledge Bases), Amazon S3 Vectors, Claude Sonnet 4.6, Strands Agents, Bedrock AgentCore (Runtime + Gateway), Model Context Protocol (FastMCP) |
+| **AI** | Amazon Bedrock (Converse + Knowledge Bases), Amazon S3 Vectors, Claude Sonnet 4.6, Strands Agents, Bedrock AgentCore (Harness), Model Context Protocol (FastMCP) |
 | **Compute** | AWS Lambda, Step Functions, EventBridge, SQS (serverless, event-driven) |
 | **Data** | DynamoDB, S3 |
 | **Auth** | Amazon Cognito (OIDC, MFA, passkeys/WebAuthn); OAuth 2.1 + PKCE for MCP clients |

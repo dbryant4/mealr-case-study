@@ -52,7 +52,7 @@ When you make a change worth releasing:
 
 ## Version history
 
-- **1.6.0** — Added the `insights` service: a Bedrock AgentCore + Strands agent that generates recipe-library insights by consuming the platform's own MCP tools (async, S3-backed). Passkey/WebAuthn MFA; service count 9 → 10.
+- **1.6.0** — Added the `insights` service: a managed Bedrock AgentCore **Harness** agent that generates recipe-library insights, with per-user isolation enforced as a hard IAM boundary (inline tools read S3 under a scoped Job-Lambda role; the Harness has zero data access). Async, S3-backed; owner-only refresh. Passkey/WebAuthn MFA; service count 9 → 10.
 - **1.5.0** — Ingestion pipeline is now agentic: a Coordinator fans out concurrent agentic recipe workers (Bedrock Converse, PDF inlined as a document block) over a FIFO queue, with per-user ordering and adaptive backoff.
 - **1.4.1** — Diagram polish: fixed the MCP tool note overflowing the canvas; added a "Uploaded via web app" origin to the ingestion pipeline.
 - **1.4.0** — Ask rebuilt as an agentic, streaming (SSE) assistant on the Strands Agents framework; MCP 2.0 replaced `ask_about_recipes` with `semantic_search_recipes` (retrieval-as-a-tool).
