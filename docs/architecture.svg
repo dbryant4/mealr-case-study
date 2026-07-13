@@ -1,11 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 784" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 980" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
   <defs>
     <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L7,3 L0,6 Z" fill="#5b6b7a"/>
     </marker>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#5b6b7a"/>
+    </marker>
   </defs>
 
-  <rect x="0" y="0" width="1040" height="784" rx="10" fill="#ffffff"/>
+  <rect x="0" y="0" width="1040" height="980" rx="10" fill="#ffffff"/>
   <text x="520" y="34" text-anchor="middle" font-size="20" font-weight="700" fill="#15212e">Mealr — system architecture</text>
 
   <!-- ================= Section 1: Request path ================= -->
@@ -134,4 +137,57 @@
 
   <text x="34" y="746" font-size="11" fill="#5b6b7a">14 tools (v2.0): 9 recipe tools incl. semantic_search_recipes (vector search) + 5 shopping-list tools incl. create/update actions.</text>
   <text x="34" y="761" font-size="11" fill="#5b6b7a">Per-user OAuth 2.1 token forwarding; writes scoped to shopping lists.</text>
+
+  <!-- ================= Section 5: Insights (async agentic job) ================= -->
+  <rect x="16" y="784" width="1008" height="180" rx="14" fill="#eef0fb" stroke="#d3d7f0"/>
+  <text x="34" y="810" font-size="13" font-weight="700" fill="#4a4eae">5 · Insights — an async, agentic job (Bedrock AgentCore Harness)</text>
+  <text x="34" y="830" font-size="11" fill="#5b6b7a">Managed model + tools-as-config · the Harness has zero data access · per-user scope is enforced by the Job Lambda&#8217;s IAM role.</text>
+
+  <!-- trigger -->
+  <rect x="40" y="856" width="138" height="56" rx="8" fill="#fff" stroke="#4a4eae" stroke-width="1.5"/>
+  <text x="109" y="880" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a38">EventBridge · SQS</text>
+  <text x="109" y="896" text-anchor="middle" font-size="10" fill="#5b6b7a">FIFO · debounced</text>
+
+  <!-- harness agent -->
+  <rect x="214" y="856" width="180" height="56" rx="8" fill="#fff" stroke="#4a4eae" stroke-width="1.8"/>
+  <text x="304" y="880" text-anchor="middle" font-size="14" font-weight="600" fill="#4a4eae">Harness agent</text>
+  <text x="304" y="896" text-anchor="middle" font-size="10" fill="#5b6b7a">AgentCore · Claude</text>
+
+  <!-- inline tools -->
+  <rect x="478" y="856" width="180" height="56" rx="8" fill="#e5e8f8" stroke="#4a4eae" stroke-width="1.5"/>
+  <text x="568" y="880" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a38">inline tools</text>
+  <text x="568" y="896" text-anchor="middle" font-size="10" fill="#5b6b7a">list_recipes · get_recipe</text>
+
+  <!-- S3 recipes -->
+  <rect x="742" y="856" width="150" height="56" rx="8" fill="#fff" stroke="#4a4eae" stroke-width="1.5"/>
+  <text x="817" y="880" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a38">S3 · recipes</text>
+  <text x="817" y="896" text-anchor="middle" font-size="10" fill="#5b6b7a">scoped to userId</text>
+
+  <!-- arrows: trigger -> agent -->
+  <line x1="178" y1="884" x2="212" y2="884" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="195" y="877" text-anchor="middle" font-size="9" fill="#6a6fae">invoke</text>
+
+  <!-- agentic loop: agent <-> tools -->
+  <line x1="394" y1="876" x2="476" y2="876" stroke="#5b6b7a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="435" y="870" text-anchor="middle" font-size="10" fill="#6a6fae">tool_use</text>
+  <line x1="478" y1="896" x2="396" y2="896" stroke="#5b6b7a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="437" y="908" text-anchor="middle" font-size="10" fill="#6a6fae">result</text>
+
+  <!-- tools -> S3 recipes -->
+  <line x1="658" y1="884" x2="740" y2="884" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="699" y="877" text-anchor="middle" font-size="10" fill="#6a6fae">read (IAM)</text>
+
+  <!-- write path -->
+  <line x1="304" y1="912" x2="304" y2="921" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="250" y="918" text-anchor="middle" font-size="9" fill="#6a6fae">writes report</text>
+
+  <rect x="214" y="922" width="220" height="40" rx="8" fill="#fff" stroke="#4a4eae" stroke-width="1.5"/>
+  <text x="324" y="946" text-anchor="middle" font-size="12" font-weight="600" fill="#1a2a38">S3 · insights/{userId}.json</text>
+
+  <rect x="488" y="922" width="150" height="40" rx="8" fill="#fff" stroke="#4a4eae" stroke-width="1.5"/>
+  <text x="563" y="940" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2a38">Dashboard</text>
+  <text x="563" y="954" text-anchor="middle" font-size="10" fill="#5b6b7a">owner-only refresh</text>
+
+  <line x1="434" y1="942" x2="486" y2="942" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="460" y="936" text-anchor="middle" font-size="10" fill="#6a6fae">serves</text>
 </svg>

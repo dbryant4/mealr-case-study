@@ -73,7 +73,7 @@ This is the part that matters for an engineering audience. Mealr isn't a chatbot
 
 ![Mealr system architecture](docs/architecture.svg)
 
-<sub>Three flows — the request path, the document-AI ingestion pipeline, and the conversational-RAG ask flow.</sub>
+<sub>Five sections — the request path, the document-AI ingestion pipeline, the conversational-RAG ask flow, the MCP server, and the async agentic insights job (an AgentCore Harness tool-use loop with IAM-scoped S3 reads).</sub>
 
 <details>
 <summary>Text version (Mermaid)</summary>
@@ -103,7 +103,7 @@ flowchart TB
     bedrock["Bedrock Converse<br/>Claude Sonnet 4.6"]
     ingest["PDF ingestor · Coordinator<br/>concurrent fan-out to agentic workers"]
     mcp["MCP server<br/>mcp.mealr.recipes"]
-    insights["insights-api<br/>AgentCore Harness agent"]
+    insights["insights-api<br/>AgentCore Harness · tool-use loop"]
   end
 
   agent(["AI agent / MCP client"])
