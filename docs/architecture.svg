@@ -46,44 +46,47 @@
 
   <!-- ================= Section 2: Ingestion pipeline ================= -->
   <rect x="16" y="246" width="1008" height="150" rx="14" fill="#fbf4ec" stroke="#ecdcc7"/>
-  <text x="34" y="272" font-size="13" font-weight="700" fill="#B5651D">2 · Ingestion pipeline — document AI</text>
-  <rect x="40" y="280" width="150" height="24" rx="6" fill="#fff" stroke="#B5651D"/>
-  <text x="115" y="296" text-anchor="middle" font-size="10" fill="#5b6b7a">Uploaded via web app</text>
-  <line x1="115" y1="304" x2="115" y2="310" stroke="#5b6b7a" stroke-width="1.4" marker-end="url(#ar)"/>
+  <text x="34" y="272" font-size="13" font-weight="700" fill="#B5651D">2 · Ingestion pipeline — document AI (PDF · photo · URL)</text>
 
-  <rect x="40" y="312" width="150" height="56" rx="8" fill="#fff" stroke="#B5651D" stroke-width="1.5"/>
-  <text x="115" y="335" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">S3</text>
-  <text x="115" y="352" text-anchor="middle" font-size="11" fill="#5b6b7a">PDF uploads</text>
+  <!-- Sources -->
+  <rect x="40" y="300" width="150" height="22" rx="6" fill="#fff" stroke="#B5651D"/>
+  <text x="115" y="315" text-anchor="middle" font-size="10.5" fill="#1a2a38">PDF upload</text>
+  <rect x="40" y="326" width="150" height="22" rx="6" fill="#fff" stroke="#B5651D"/>
+  <text x="115" y="341" text-anchor="middle" font-size="10.5" fill="#1a2a38">Photo · up to 5 pages</text>
+  <rect x="40" y="352" width="150" height="22" rx="6" fill="#fff" stroke="#B5651D"/>
+  <text x="115" y="367" text-anchor="middle" font-size="10.5" fill="#1a2a38">URL</text>
+  <line x1="190" y1="311" x2="190" y2="363" stroke="#5b6b7a" stroke-width="1.4"/>
+  <line x1="190" y1="337" x2="212" y2="337" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="201" y="330" text-anchor="middle" font-size="9" fill="#8a7150">import</text>
 
-  <!-- PDF Ingestor: Coordinator fans out to agentic workers -->
-  <rect x="296" y="309" width="218" height="62" rx="9" fill="#ffffff" stroke="#e0c8a8"/>
-  <rect x="322" y="312" width="166" height="20" rx="6" fill="#fbf4ec" stroke="#B5651D" stroke-width="1.4"/>
-  <text x="405" y="326" text-anchor="middle" font-size="11" font-weight="600" fill="#1a2a38">Coordinator</text>
-  <line x1="405" y1="332" x2="333" y2="342" stroke="#5b6b7a" stroke-width="1.2" marker-end="url(#ar)"/>
-  <line x1="405" y1="332" x2="405" y2="342" stroke="#5b6b7a" stroke-width="1.2" marker-end="url(#ar)"/>
-  <line x1="405" y1="332" x2="477" y2="342" stroke="#5b6b7a" stroke-width="1.2" marker-end="url(#ar)"/>
-  <rect x="304" y="344" width="58" height="24" rx="6" fill="#fff" stroke="#B5651D"/>
-  <text x="333" y="360" text-anchor="middle" font-size="10" fill="#1a2a38">agent</text>
-  <rect x="376" y="344" width="58" height="24" rx="6" fill="#fff" stroke="#B5651D"/>
-  <text x="405" y="360" text-anchor="middle" font-size="10" fill="#1a2a38">agent</text>
-  <rect x="448" y="344" width="58" height="24" rx="6" fill="#fff" stroke="#B5651D"/>
-  <text x="477" y="360" text-anchor="middle" font-size="10" fill="#1a2a38">agent</text>
-  <text x="405" y="386" text-anchor="middle" font-size="9.5" fill="#8a7150">PDF Ingestor · concurrent agentic fan-out</text>
+  <!-- Dispatcher -->
+  <rect x="214" y="309" width="150" height="56" rx="8" fill="#fff" stroke="#B5651D" stroke-width="1.7"/>
+  <text x="289" y="332" text-anchor="middle" font-size="14" font-weight="600" fill="#B5651D">Dispatcher</text>
+  <text x="289" y="349" text-anchor="middle" font-size="10" fill="#5b6b7a">per-user cap · QUEUED</text>
 
-  <rect x="600" y="312" width="160" height="56" rx="8" fill="#fff" stroke="#B5651D" stroke-width="1.5"/>
-  <text x="680" y="335" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">S3</text>
-  <text x="680" y="352" text-anchor="middle" font-size="11" fill="#5b6b7a">structured JSON</text>
+  <!-- Step Functions pipeline -->
+  <rect x="400" y="302" width="310" height="74" rx="9" fill="#fff" stroke="#B5651D" stroke-width="1.5"/>
+  <text x="555" y="322" text-anchor="middle" font-size="12.5" font-weight="600" fill="#B5651D">Step Functions · RecipePipeline</text>
+  <text x="555" y="342" text-anchor="middle" font-size="10.5" fill="#5b6b7a">extract (Bedrock Claude) → validate → render</text>
+  <text x="555" y="358" text-anchor="middle" font-size="10.5" fill="#5b6b7a">→ banner → save &amp; tag → update index</text>
 
-  <rect x="830" y="312" width="170" height="56" rx="8" fill="#fff" stroke="#B5651D" stroke-width="1.5"/>
-  <text x="915" y="335" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">Knowledge Base</text>
-  <text x="915" y="352" text-anchor="middle" font-size="11" fill="#5b6b7a">Bedrock + S3 Vectors</text>
+  <!-- S3 + KB -->
+  <rect x="744" y="309" width="118" height="56" rx="8" fill="#fff" stroke="#B5651D" stroke-width="1.5"/>
+  <text x="803" y="332" text-anchor="middle" font-size="14" font-weight="600" fill="#1a2a38">S3</text>
+  <text x="803" y="349" text-anchor="middle" font-size="10.5" fill="#5b6b7a">structured JSON</text>
 
-  <line x1="190" y1="322" x2="320" y2="322" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
-  <text x="250" y="315" text-anchor="middle" font-size="10" fill="#8a7150">on upload</text>
-  <line x1="514" y1="322" x2="598" y2="338" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
-  <text x="556" y="316" text-anchor="middle" font-size="10" fill="#8a7150">persist</text>
-  <line x1="760" y1="340" x2="828" y2="340" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
-  <text x="794" y="332" text-anchor="middle" font-size="10" fill="#8a7150">sync</text>
+  <rect x="880" y="309" width="120" height="56" rx="8" fill="#fff" stroke="#B5651D" stroke-width="1.5"/>
+  <text x="940" y="332" text-anchor="middle" font-size="11.5" font-weight="600" fill="#1a2a38">Knowledge Base</text>
+  <text x="940" y="349" text-anchor="middle" font-size="9.5" fill="#5b6b7a">Bedrock + S3 Vectors</text>
+
+  <line x1="364" y1="337" x2="398" y2="337" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="381" y="330" text-anchor="middle" font-size="9" fill="#8a7150">start / queue</text>
+  <line x1="710" y1="337" x2="742" y2="337" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="726" y="330" text-anchor="middle" font-size="9" fill="#8a7150">write</text>
+  <line x1="862" y1="337" x2="878" y2="337" stroke="#5b6b7a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="870" y="330" text-anchor="middle" font-size="9" fill="#8a7150">sync</text>
+
+  <text x="34" y="390" font-size="10.5" fill="#8a7150">Dispatcher gates per-user concurrency with QUEUED rows (no SQS); on success the pipeline emits an "Import Job Succeeded" event that triggers KB sync.</text>
 
   <!-- ================= Section 3: Ask / RAG ================= -->
   <rect x="16" y="416" width="1008" height="172" rx="14" fill="#eef7f3" stroke="#cae3da"/>

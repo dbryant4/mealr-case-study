@@ -47,9 +47,10 @@ This is the part that matters for an engineering audience. Mealr isn't a chatbot
 - **Event-driven sync** via EventBridge, with debouncing when many recipes change at once.
 
 ### Document-AI ingestion pipeline (`pdf-ingestor` service)
-- Drop a scanned recipe PDF in S3 → an event-driven pipeline extracts it into structured JSON (ingredients with consistent units, steps, images), scoped by `userId`.
-- **Agentic extraction, deterministic writes:** a **Coordinator** fans out concurrent **agentic recipe workers** — each running Bedrock Converse with the source PDF inlined as a document block — over a **FIFO queue**, preserving per-user ordering and backing off adaptively when Bedrock throttles. The workers only *extract*; the Coordinator then runs a **deterministic persist chain** (validate → write the tagged `recipe.json` → archive the source → merge the per-user index) that does all the S3 writes, keeping the fuzzy AI step cleanly separated from durable persistence. Page and banner images render in parallel.
-- Job status tracked in DynamoDB for the UI; idempotent reprocessing and data migrations are first-class.
+- **Three ways in, one pipeline:** import a recipe from a **scanned PDF**, a **multi-page phone photo** (up to five camera pages combined into one recipe), or a **URL** — each is normalized into the same structured JSON (ingredients with consistent units, steps, images), scoped by `userId`.
+- **Event-driven, orchestrated by Step Functions:** a PDF upload (S3 + EventBridge) or a photo/URL import (the recipes API async-invokes the dispatcher with a prebuilt input) lands at a **Dispatcher**, which resolves identity, tags the source, and starts a per-recipe **Step Functions** execution — extract (Bedrock Claude, with the PDF as a document block or up to five photos as image blocks) → validate → render pages → extract banner → save & tag → update index → emit an **`Import Job Succeeded`** event that the rest of the platform (e.g. the knowledge base) reacts to.
+- **Per-user concurrency, done safely:** the dispatcher runs each user's imports concurrently up to a cap (default 5); overflow recipes wait in a **`QUEUED`** DynamoDB row (with their built execution input stored on the row) and start automatically as slots free up — a row-status gate that **replaced an SQS overflow queue**. Because a user's runs now overlap, the per-user index is written with an **ETag-conditional `PutObject` that retries on a `412` conflict**, so a race can never drop an entry.
+- **Fuzzy AI step, deterministic writes:** the model only *extracts*; validation, the tagged `recipe.json` write, source archival, and index merges are deterministic pipeline steps. Job status (`QUEUED → PROCESSING → SUCCEEDED | FAILED`) is tracked in DynamoDB for the UI; idempotent reprocessing and data migrations are first-class.
 
 ### MCP server — let any agent use your recipes (`mcp` service)
 - A remote **Model Context Protocol** server (FastMCP on AWS Lambda) that lets external AI agents — Claude, IDE assistants, anything MCP-aware — work with a user's recipes through standard tools.
@@ -66,7 +67,7 @@ This is the part that matters for an engineering audience. Mealr isn't a chatbot
 - **Genuinely agentic, not a single prompt:** the agent runs a **tool-use loop** — it reasons about what it still needs to know, calls `list_recipes` / `get_recipe` to explore the library, incorporates each `tool_use` → `result`, and iterates until it can produce a validated, widget-shaped report. It decides *which* recipes to inspect rather than being handed a fixed context window.
 - **Security is a hard IAM boundary, not a prompt convention:** the Harness itself has **zero data access**. Its inline tools (`list_recipes`, `get_recipe`) execute in the *caller* — a Job Lambda whose IAM role is scoped to that user's `recipes/<userId>/…` objects in S3. The model can only ever reach the recipes of the user the job is running for; `userId` comes from the verified identity, never a model argument. (This is deliberately a *different* access path from the MCP server, which forwards a live per-user OAuth token — an async, unattended job has no user token to forward, so it reads from S3 under its own scoped role instead.)
 - **Async by design:** an SQS FIFO job (content-based dedup for debounce) drives the agent's tool-use loop and writes the report to S3 (`insights/{userId}.json`); a small front-door API serves it (`GET /insights`, plus an **owner-only** `POST /insights/refresh` so a viewer can't spend another owner's Bedrock budget). A slow, multi-step LLM job never blocks a request.
-- A concrete **build-vs-buy** call: the *managed* AgentCore Harness for the agent loop where it earns its keep, while the *hard security boundary* stays in your own IAM-scoped Lambda — and *hand-built* determinism (the ingestion Coordinator) is used where it matters.
+- A concrete **build-vs-buy** call: the *managed* AgentCore Harness for the agent loop where it earns its keep, while the *hard security boundary* stays in your own IAM-scoped Lambda — and *hand-built* determinism (the Step Functions ingestion pipeline) is used where it matters.
 
 ---
 
@@ -102,7 +103,8 @@ flowchart TB
   subgraph ai ["Agentic AI"]
     kb["Knowledge Base<br/>Bedrock + S3 Vectors"]
     bedrock["Bedrock Converse<br/>Claude Sonnet 4.6"]
-    ingest["PDF ingestor · Coordinator<br/>concurrent fan-out to agentic workers"]
+    disp["Dispatcher<br/>per-user cap · QUEUED gate"]
+    pipe["Step Functions · RecipePipeline<br/>extract → validate → render → banner → save → index"]
     mcp["MCP server<br/>mcp.mealr.recipes"]
   end
 
@@ -125,8 +127,11 @@ flowchart TB
   user --> web --> gw
   web --> cognito
   gw --> account & recipes & shopping & ask
-  s3in --> ingest --> s3out
-  s3out -- EventBridge --> kb
+  imports(["Imports · PDF · photo · URL"]) --> disp
+  disp -- start / queue --> pipe
+  pipe --> s3out
+  pipe -- archive source --> s3in
+  s3out -- Import Job Succeeded --> kb
   ask --> kb --> bedrock
   ask --> bedrock
   agent -- OAuth 2.1 --> mcp
@@ -139,7 +144,7 @@ flowchart TB
   itools -- read · IAM-scoped --> s3out
   iagent -- writes report --> iout --> dash
   recipes --> ddb
-  ingest --> ddb
+  pipe -- job status --> ddb
 ```
 
 </details>

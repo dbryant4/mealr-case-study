@@ -8,7 +8,7 @@ A **public, code-free case study** documenting the architecture of Mealr. The ap
 
 ## Versioning
 
-The single source of truth for the version is the **`VERSION`** file (currently `1.6.0`), using **semantic versioning** `MAJOR.MINOR.PATCH`.
+The single source of truth for the version is the **`VERSION`** file (currently `1.7.0`), using **semantic versioning** `MAJOR.MINOR.PATCH`.
 
 Because this repo is documentation (not shipping code), interpret SemVer by *content impact*:
 
@@ -52,6 +52,7 @@ When you make a change worth releasing:
 
 ## Version history
 
+- **1.7.0** — Corrected and expanded the ingestion section to the real architecture: three import sources (PDF, multi-page photo, URL), a **Dispatcher + Step Functions** pipeline (replacing the inaccurate "Coordinator fan-out over FIFO" depiction), per-user concurrency capped via a `QUEUED` DynamoDB row status (the SQS overflow queue was removed), ETag-conditional index writes, and an `Import Job Succeeded` event driving KB sync. Diagram section 2 and Mermaid redrawn to match.
 - **1.6.0** — Added the `insights` service: a managed Bedrock AgentCore **Harness** agent that generates recipe-library insights, with per-user isolation enforced as a hard IAM boundary (inline tools read S3 under a scoped Job-Lambda role; the Harness has zero data access). Async, S3-backed; owner-only refresh. Passkey/WebAuthn MFA; service count 9 → 10.
 - **1.5.0** — Ingestion pipeline is now agentic: a Coordinator fans out concurrent agentic recipe workers (Bedrock Converse, PDF inlined as a document block) over a FIFO queue, with per-user ordering and adaptive backoff.
 - **1.4.1** — Diagram polish: fixed the MCP tool note overflowing the canvas; added a "Uploaded via web app" origin to the ingestion pipeline.
