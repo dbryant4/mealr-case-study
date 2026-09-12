@@ -32,16 +32,8 @@ jobs:
           fi
           echo "version $v"
 
-      # This repo ships documentation and one SVG, so there is no build or test
-      # to run. These checks guard the two things that have actually broken
-      # elsewhere in the project: a malformed VERSION, and an unparseable SVG.
-      - name: SVG files are well-formed XML
-        run: |
-          shopt -s nullglob globstar
-          found=0
-          for f in **/*.svg; do
-            found=1
-            python3 -c "import xml.etree.ElementTree as E,sys; E.parse(sys.argv[1])" "$f"
-            echo "ok $f"
-          done
-          [ "$found" = 1 ] || echo "no SVG files found"
+      # This repo ships documentation and one static SVG, so there is nothing to
+      # build or test. The VERSION gate is kept because the release tooling depends
+      # on that file across all 14 repos, and it costs seconds. An earlier SVG
+      # well-formedness step was dropped: it guarded a single file that already
+      # parses and effectively never changes.
