@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      # Runs before any install: needs no toolchain, so a bad version fails
+      # in seconds instead of after a full dependency download.
+      - name: VERSION is semver
+        run: |
+          v="$(tr -d '[:space:]' < VERSION)"
+          if ! echo "$v" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "VERSION '$v' is not X.Y.Z - see .cursor/rules/semver-version.mdc"
+            exit 1
+          fi
+          echo "version $v"
+
+      # This repo ships documentation and one SVG, so there is no build or test
+      # to run. These checks guard the two things that have actually broken
+      # elsewhere in the project: a malformed VERSION, and an unparseable SVG.
+      - name: SVG files are well-formed XML
+        run: |
+          shopt -s nullglob globstar
+          found=0
+          for f in **/*.svg; do
+            found=1
+            python3 -c "import xml.etree.ElementTree as E,sys; E.parse(sys.argv[1])" "$f"
+            echo "ok $f"
+          done
+          [ "$found" = 1 ] || echo "no SVG files found"
